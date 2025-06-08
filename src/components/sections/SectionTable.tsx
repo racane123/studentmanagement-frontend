@@ -38,7 +38,7 @@ const SectionTable: React.FC<SectionTableProps> = ({ sections }) => {
               <TableCell>{section.gradeLevel}</TableCell>
               <TableCell>{section.schoolYear}</TableCell>
               <TableCell>
-                {section.adviser ? `${section.adviser.firstName} ${section.adviser.lastName}` : '-'}
+                {section.adviser ? `${section.adviser.firstname} ${section.adviser.lastname}` : '-'}
               </TableCell>
               <TableCell>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -48,7 +48,7 @@ const SectionTable: React.FC<SectionTableProps> = ({ sections }) => {
                         {subject.subject.name} ({subject.subject.code})
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        {subject.teacher.firstName} {subject.teacher.lastName} | {subject.schedule} | {subject.room}
+                        {subject.teacher.firstname} {subject.teacher.lastname} | {subject.schedule} | {subject.room}
                       </Typography>
                     </Box>
                   ))}
@@ -59,10 +59,10 @@ const SectionTable: React.FC<SectionTableProps> = ({ sections }) => {
                   {section.students?.map((student) => (
                     <Box key={student.id}>
                       <Typography variant="body2">
-                        {student.student.firstName} {student.student.lastName}
+                        {student.student.firstname} {student.student.lastname}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        Status: {student.status} | Enrolled: {new Date(student.enrollmentDate).toLocaleDateString()}
+                        {student.enrollmentDate} | {student.status}
                       </Typography>
                     </Box>
                   ))}

@@ -1,5 +1,19 @@
 import type { Section } from '../types/section';
 
+interface Teacher {
+  id: string;
+  firstname: string;
+  lastname: string;
+  email: string;
+}
+
+interface Student {
+  id: string;
+  firstname: string;
+  lastname: string;
+  email: string;
+}
+
 export const mockSections: Section[] = [
   {
     id: '1',
@@ -9,8 +23,9 @@ export const mockSections: Section[] = [
     adviserId: '1',
     adviser: {
       id: '1',
-      firstName: 'John',
-      lastName: 'Doe'
+      firstname: 'John',
+      lastname: 'Doe',
+      email: 'john.doe@example.com'
     },
     subjects: [
       {
@@ -22,8 +37,9 @@ export const mockSections: Section[] = [
         },
         teacher: {
           id: '2',
-          firstName: 'Jane',
-          lastName: 'Smith'
+          firstname: 'Jane',
+          lastname: 'Smith',
+          email: 'jane.smith@example.com'
         },
         schedule: 'MWF 8:00-9:30',
         room: 'Room 101'
@@ -37,8 +53,9 @@ export const mockSections: Section[] = [
         },
         teacher: {
           id: '3',
-          firstName: 'Robert',
-          lastName: 'Johnson'
+          firstname: 'Robert',
+          lastname: 'Johnson',
+          email: 'robert.johnson@example.com'
         },
         schedule: 'TTh 10:00-11:30',
         room: 'Room 102'
@@ -49,8 +66,9 @@ export const mockSections: Section[] = [
         id: '1',
         student: {
           id: '1',
-          firstName: 'Alice',
-          lastName: 'Brown'
+          firstname: 'Alice',
+          lastname: 'Brown',
+          email: 'alice.brown@example.com'
         },
         status: 'Active',
         enrollmentDate: '2023-06-01'
@@ -59,8 +77,9 @@ export const mockSections: Section[] = [
         id: '2',
         student: {
           id: '2',
-          firstName: 'Bob',
-          lastName: 'Wilson'
+          firstname: 'Bob',
+          lastname: 'Wilson',
+          email: 'bob.wilson@example.com'
         },
         status: 'Active',
         enrollmentDate: '2023-06-01'
@@ -76,8 +95,9 @@ export const mockSections: Section[] = [
     adviserId: '4',
     adviser: {
       id: '4',
-      firstName: 'Mary',
-      lastName: 'Williams'
+      firstname: 'Mary',
+      lastname: 'Williams',
+      email: 'mary.williams@example.com'
     },
     subjects: [
       {
@@ -89,8 +109,9 @@ export const mockSections: Section[] = [
         },
         teacher: {
           id: '5',
-          firstName: 'David',
-          lastName: 'Miller'
+          firstname: 'David',
+          lastname: 'Miller',
+          email: 'david.miller@example.com'
         },
         schedule: 'MWF 10:00-11:30',
         room: 'Room 103'
@@ -104,8 +125,9 @@ export const mockSections: Section[] = [
         },
         teacher: {
           id: '6',
-          firstName: 'Sarah',
-          lastName: 'Davis'
+          firstname: 'Sarah',
+          lastname: 'Davis',
+          email: 'sarah.davis@example.com'
         },
         schedule: 'TTh 8:00-9:30',
         room: 'Room 104'
@@ -116,8 +138,9 @@ export const mockSections: Section[] = [
         id: '3',
         student: {
           id: '3',
-          firstName: 'Charlie',
-          lastName: 'Taylor'
+          firstname: 'Charlie',
+          lastname: 'Taylor',
+          email: 'charlie.taylor@example.com'
         },
         status: 'Active',
         enrollmentDate: '2023-06-01'
@@ -126,8 +149,9 @@ export const mockSections: Section[] = [
         id: '4',
         student: {
           id: '4',
-          firstName: 'Diana',
-          lastName: 'Anderson'
+          firstname: 'Diana',
+          lastname: 'Anderson',
+          email: 'diana.anderson@example.com'
         },
         status: 'Active',
         enrollmentDate: '2023-06-01'

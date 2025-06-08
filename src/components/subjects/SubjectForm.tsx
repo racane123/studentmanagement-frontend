@@ -1,33 +1,62 @@
 import React, { useState, useEffect } from 'react';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  Grid,
+  MenuItem,
+} from '@mui/material';
 
 interface Subject {
   id: string;
   name: string;
   code: string;
   description: string;
-  credits: number;
+  department: string;
 }
 
 interface SubjectFormProps {
+  open: boolean;
   subject?: Subject;
   onSubmit: (subject: Omit<Subject, 'id'>) => void;
   onCancel: () => void;
 }
 
-const SubjectForm: React.FC<SubjectFormProps> = ({ subject, onSubmit, onCancel }) => {
+const departments = [
+  'Mathematics',
+  'Science',
+  'English',
+  'History',
+  'Computer Science',
+  'Physical Education',
+  'Arts',
+  'Music',
+];
+
+const SubjectForm: React.FC<SubjectFormProps> = ({ open, subject, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState<Omit<Subject, 'id'>>({
     name: '',
     code: '',
     description: '',
-    credits: 0,
+    department: '',
   });
 
   useEffect(() => {
     if (subject) {
       const { id, ...subjectData } = subject;
       setFormData(subjectData);
+    } else {
+      setFormData({
+        name: '',
+        code: '',
+        description: '',
+        department: '',
+      });
     }
-  }, [subject]);
+  }, [subject, open]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -35,7 +64,7 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ subject, onSubmit, onCancel }
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === 'credits' ? Number(value) : value,
+      [name]: value,
     }));
   };
 
@@ -45,58 +74,75 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ subject, onSubmit, onCancel }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="subject-form">
-      <div>
-        <label htmlFor="name">Name:</label>
-        <input
-          type="text"
-          id="name"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div>
-        <label htmlFor="code">Code:</label>
-        <input
-          type="text"
-          id="code"
-          name="code"
-          value={formData.code}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div>
-        <label htmlFor="description">Description:</label>
-        <textarea
-          id="description"
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div>
-        <label htmlFor="credits">Credits:</label>
-        <input
-          type="number"
-          id="credits"
-          name="credits"
-          value={formData.credits}
-          onChange={handleChange}
-          min="0"
-          required
-        />
-      </div>
-      <div className="form-buttons">
-        <button type="submit">{subject ? 'Update' : 'Create'}</button>
-        <button type="button" onClick={onCancel}>
-          Cancel
-        </button>
-      </div>
-    </form>
+    <Dialog open={open} onClose={onCancel} maxWidth="sm" fullWidth>
+      <DialogTitle>{subject ? 'Edit Subject' : 'Add New Subject'}</DialogTitle>
+      <form onSubmit={handleSubmit}>
+        <DialogContent>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Subject Name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Subject Code"
+                name="code"
+                value={formData.code}
+                onChange={handleChange}
+                required
+                helperText="Use uppercase letters, numbers, and hyphens only"
+                inputProps={{
+                  pattern: '[A-Z0-9-]+',
+                  style: { textTransform: 'uppercase' }
+                }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                multiline
+                rows={3}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                select
+                label="Department"
+                name="department"
+                value={formData.department}
+                onChange={handleChange}
+                required
+              >
+                {departments.map((dept) => (
+                  <MenuItem key={dept} value={dept}>
+                    {dept}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onCancel}>Cancel</Button>
+          <Button type="submit" variant="contained" color="primary">
+            {subject ? 'Update' : 'Create'}
+          </Button>
+        </DialogActions>
+      </form>
+    </Dialog>
   );
 };
 

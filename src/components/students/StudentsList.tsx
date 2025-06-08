@@ -27,9 +27,7 @@ export const StudentsList: React.FC = () => {
 
   const fetchStudents = async () => {
     try {
-      //console.log('Fetching students...');
       const response = await studentService.getAllStudents();
-      //console.log('Raw API response:', response);
       setStudents(response.students || []);
       setError('');
     } catch (err) {

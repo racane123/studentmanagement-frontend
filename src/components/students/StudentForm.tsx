@@ -2,15 +2,14 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
-  Paper,
-  Typography,
-  TextField,
   Button,
-  MenuItem,
-  Alert,
+  TextField,
+  Paper,
   FormControl,
   InputLabel,
   Select,
+  MenuItem,
+  Typography,
 } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material';
 import { studentService } from '../../services/studentService';
@@ -19,22 +18,23 @@ const StudentForm: React.FC = () => {
   const navigate = useNavigate();
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
-    firstName: '',
-    middleName: '',
-    lastName: '',
+    firstname: '',
+    middlename: '',
+    lastname: '',
+    email: '',
     gender: '',
     age: '',
     section: '',
-    schoolYear: '',
-    schoolName: '',
+    schoolyear: '',
+    schoolname: '',
     subject: '',
-    gradingPeriod: '',
+    gradingperiod: '',
     division: '',
     grade: '',
-    classSection: '',
+    classsection: '',
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }> | SelectChangeEvent) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -42,51 +42,74 @@ const StudentForm: React.FC = () => {
     }));
   };
 
-  const handleSelectChange = (e: SelectChangeEvent) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const errors: string[] = [];
 
-  const validateForm = () => {
-    const errors = [];
-    
-    if (!formData.firstName.trim()) errors.push('First name is required');
-    if (!formData.lastName.trim()) errors.push('Last name is required');
-    if (!formData.gender) errors.push('Gender is required');
-    if (!formData.age || isNaN(Number(formData.age)) || Number(formData.age) < 4 || Number(formData.age) > 100) {
-      errors.push('Age must be a number between 4 and 100');
+    // Required field validation
+    if (!formData.firstname.trim()) errors.push('First name is required');
+    if (!formData.lastname.trim()) errors.push('Last name is required');
+    if (!formData.email.trim()) errors.push('Email is required');
+    if (!formData.gender.trim()) errors.push('Gender is required');
+    if (!formData.age.trim()) errors.push('Age is required');
+    if (!formData.section.trim()) errors.push('Section is required');
+    if (!formData.schoolyear.trim()) errors.push('School year is required');
+    if (!formData.schoolname.trim()) errors.push('School name is required');
+    if (!formData.subject.trim()) errors.push('Subject is required');
+    if (!formData.gradingperiod.trim()) errors.push('Grading period is required');
+    if (!formData.division.trim()) errors.push('Division is required');
+    if (!formData.grade.trim()) errors.push('Grade is required');
+    if (!formData.classsection.trim()) errors.push('Class section is required');
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      errors.push('Invalid email format');
     }
-    if (!formData.schoolYear || !/^\d{4}-\d{4}$/.test(formData.schoolYear)) {
+
+    // Age validation
+    const age = parseInt(formData.age);
+    if (isNaN(age) || age < 4 || age > 100) {
+      errors.push('Age must be between 4 and 100');
+    }
+
+    // Grade validation
+    const grade = parseInt(formData.grade);
+    if (isNaN(grade) || grade < 1 || grade > 12) {
+      errors.push('Grade must be between 1 and 12');
+    }
+
+    // School year validation
+    const yearRegex = /^\d{4}-\d{4}$/;
+    if (!yearRegex.test(formData.schoolyear)) {
       errors.push('School year must be in format YYYY-YYYY');
-    }
-    if (!formData.grade || isNaN(Number(formData.grade)) || Number(formData.grade) < 1 || Number(formData.grade) > 12) {
-      errors.push('Grade must be a number between 1 and 12');
     }
 
     if (errors.length > 0) {
-      setError(errors.join(', '));
-      return false;
-    }
-    return true;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-
-    if (!validateForm()) {
+      setError(errors.join('\n'));
       return;
     }
 
     try {
-      await studentService.createStudent({
-        ...formData,
-        age: Number(formData.age),
-        grade: Number(formData.grade),
-      });
+      // Transform the data to match backend's expected format
+      const transformedData = {
+        firstName: formData.firstname,
+        middleName: formData.middlename,
+        lastName: formData.lastname,
+        email: formData.email,
+        gender: formData.gender,
+        age: parseInt(formData.age),
+        section: formData.section,
+        schoolYear: formData.schoolyear,
+        schoolName: formData.schoolname,
+        subject: formData.subject,
+        gradingPeriod: formData.gradingperiod,
+        division: formData.division,
+        grade: parseInt(formData.grade),
+        classSection: formData.classsection,
+      };
+
+      await studentService.createStudent(transformedData);
       navigate('/students');
     } catch (err) {
       setError('Failed to create student. Please try again.');
@@ -95,183 +118,214 @@ const StudentForm: React.FC = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Paper sx={{ p: 3 }}>
-        <Typography variant="h5" gutterBottom>
-          Add New Student
+      <Paper elevation={3} sx={{ p: 4 }}>
+        <Typography variant="h5" component="h1" gutterBottom>
+          Create New Student
         </Typography>
-        
         {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
+          <Typography color="error" sx={{ mb: 2, whiteSpace: 'pre-line' }}>
             {error}
-          </Alert>
+          </Typography>
         )}
+        <Box 
+          component="form" 
+          onSubmit={handleSubmit} 
+          sx={{ 
+            mt: 3,
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: 3,
+            '& > div': {
+              width: '100%'
+            }
+          }}
+        >
+          <Box>
+            <TextField
+              required
+              fullWidth
+              label="First Name"
+              name="firstname"
+              value={formData.firstname}
+              onChange={handleChange}
+            />
+          </Box>
+          <Box>
+            <TextField
+              fullWidth
+              label="Middle Name"
+              name="middlename"
+              value={formData.middlename}
+              onChange={handleChange}
+            />
+          </Box>
+          <Box>
+            <TextField
+              required
+              fullWidth
+              label="Last Name"
+              name="lastname"
+              value={formData.lastname}
+              onChange={handleChange}
+            />
+          </Box>
 
-        <form onSubmit={handleSubmit}>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-            <Box sx={{ flex: '1 1 30%', minWidth: '250px' }}>
-              <TextField
-                fullWidth
-                required
-                label="First Name"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-              />
-            </Box>
-            <Box sx={{ flex: '1 1 30%', minWidth: '250px' }}>
-              <TextField
-                fullWidth
-                label="Middle Name"
-                name="middleName"
-                value={formData.middleName}
-                onChange={handleChange}
-              />
-            </Box>
-            <Box sx={{ flex: '1 1 30%', minWidth: '250px' }}>
-              <TextField
-                fullWidth
-                required
-                label="Last Name"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-              />
-            </Box>
+          <Box>
+            <TextField
+              required
+              fullWidth
+              label="Email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+            />
+          </Box>
 
-            <Box sx={{ flex: '1 1 30%', minWidth: '250px' }}>
-              <FormControl fullWidth required>
-                <InputLabel>Gender</InputLabel>
-                <Select
-                  name="gender"
-                  value={formData.gender}
-                  label="Gender"
-                  onChange={handleSelectChange}
-                >
-                  <MenuItem value="male">Male</MenuItem>
-                  <MenuItem value="female">Female</MenuItem>
-                  <MenuItem value="other">Other</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-
-            <Box sx={{ flex: '1 1 30%', minWidth: '250px' }}>
-              <TextField
-                fullWidth
-                required
-                type="number"
-                label="Age"
-                name="age"
-                value={formData.age}
+          <Box>
+            <FormControl fullWidth required>
+              <InputLabel>Gender</InputLabel>
+              <Select
+                name="gender"
+                value={formData.gender}
+                label="Gender"
                 onChange={handleChange}
-                inputProps={{ min: 4, max: 100 }}
-              />
-            </Box>
+              >
+                <MenuItem value="male">Male</MenuItem>
+                <MenuItem value="female">Female</MenuItem>
+                <MenuItem value="other">Other</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
 
-            <Box sx={{ flex: '1 1 30%', minWidth: '250px' }}>
-              <TextField
-                fullWidth
-                required
-                label="School Year"
-                name="schoolYear"
-                value={formData.schoolYear}
-                onChange={handleChange}
-                placeholder="YYYY-YYYY"
-                helperText="Format: YYYY-YYYY"
-              />
-            </Box>
+          <Box>
+            <TextField
+              fullWidth
+              required
+              label="Age"
+              name="age"
+              type="number"
+              value={formData.age}
+              onChange={handleChange}
+              inputProps={{ min: 4, max: 100 }}
+            />
+          </Box>
 
-            <Box sx={{ flex: '1 1 30%', minWidth: '250px' }}>
-              <TextField
-                fullWidth
-                required
-                type="number"
-                label="Grade"
-                name="grade"
-                value={formData.grade}
-                onChange={handleChange}
-                inputProps={{ min: 1, max: 12 }}
-              />
-            </Box>
+          <Box>
+            <TextField
+              fullWidth
+              required
+              label="School Year"
+              name="schoolyear"
+              value={formData.schoolyear}
+              onChange={handleChange}
+              placeholder="YYYY-YYYY"
+              helperText="Format: YYYY-YYYY"
+            />
+          </Box>
 
-            <Box sx={{ flex: '1 1 30%', minWidth: '250px' }}>
-              <TextField
-                fullWidth
-                label="Section"
-                name="section"
-                value={formData.section}
-                onChange={handleChange}
-              />
-            </Box>
+          <Box>
+            <TextField
+              fullWidth
+              required
+              label="Grade"
+              name="grade"
+              type="number"
+              value={formData.grade}
+              onChange={handleChange}
+              inputProps={{ min: 1, max: 12 }}
+            />
+          </Box>
 
-            <Box sx={{ flex: '1 1 30%', minWidth: '250px' }}>
-              <TextField
-                fullWidth
-                label="Class Section"
-                name="classSection"
-                value={formData.classSection}
-                onChange={handleChange}
-              />
-            </Box>
+          <Box>
+            <TextField
+              fullWidth
+              required
+              label="Section"
+              name="section"
+              value={formData.section}
+              onChange={handleChange}
+            />
+          </Box>
 
-            <Box sx={{ flex: '1 1 30%', minWidth: '250px' }}>
-              <TextField
-                fullWidth
-                label="School Name"
-                name="schoolName"
-                value={formData.schoolName}
-                onChange={handleChange}
-              />
-            </Box>
+          <Box>
+            <TextField
+              fullWidth
+              required
+              label="Class Section"
+              name="classsection"
+              value={formData.classsection}
+              onChange={handleChange}
+            />
+          </Box>
 
-            <Box sx={{ flex: '1 1 30%', minWidth: '250px' }}>
-              <TextField
-                fullWidth
-                label="Subject"
-                name="subject"
-                value={formData.subject}
-                onChange={handleChange}
-              />
-            </Box>
+          <Box>
+            <TextField
+              fullWidth
+              required
+              label="School Name"
+              name="schoolname"
+              value={formData.schoolname}
+              onChange={handleChange}
+            />
+          </Box>
 
-            <Box sx={{ flex: '1 1 30%', minWidth: '250px' }}>
-              <TextField
-                fullWidth
-                label="Grading Period"
-                name="gradingPeriod"
-                value={formData.gradingPeriod}
-                onChange={handleChange}
-              />
-            </Box>
+          <Box>
+            <TextField
+              fullWidth
+              required
+              label="Subject"
+              name="subject"
+              value={formData.subject}
+              onChange={handleChange}
+            />
+          </Box>
 
-            <Box sx={{ flex: '1 1 30%', minWidth: '250px' }}>
-              <TextField
-                fullWidth
-                label="Division"
-                name="division"
-                value={formData.division}
-                onChange={handleChange}
-              />
-            </Box>
+          <Box>
+            <TextField
+              fullWidth
+              required
+              label="Grading Period"
+              name="gradingperiod"
+              value={formData.gradingperiod}
+              onChange={handleChange}
+            />
+          </Box>
 
-            <Box sx={{ flex: '1 1 100%', justifyContent: 'flex-end', mt: 2 }}>
-              <Box sx={{ display: 'flex', gap: 2 }}>
-                <Button
-                  variant="outlined"
-                  onClick={() => navigate('/students')}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                >
-                  Create Student
-                </Button>
-              </Box>
+          <Box>
+            <TextField
+              fullWidth
+              required
+              label="Division"
+              name="division"
+              value={formData.division}
+              onChange={handleChange}
+            />
+          </Box>
+
+          <Box sx={{ 
+            gridColumn: '1 / -1',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            mt: 2
+          }}>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Button
+                variant="outlined"
+                onClick={() => navigate('/students')}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+              >
+                Create Student
+              </Button>
             </Box>
           </Box>
-        </form>
+        </Box>
       </Paper>
     </Box>
   );

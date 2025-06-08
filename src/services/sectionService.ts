@@ -1,46 +1,65 @@
-// import api from './api';
+import api from './api';
+import type { Section } from '../types/section';
 
-// export interface Section {
-//   id: string;
-//   name: string;
-//   grade: string;
-//   capacity: number;
-//   teacherId: string;
-//   subjectId: string;
-// }
+export interface CreateSectionData {
+  name: string;
+  gradeLevel: string;
+  schoolYear: string;
+  adviserId: number;
+  subjects?: {
+    subjectId: number;
+    teacherId: number;
+    schedule: string;
+    room: string;
+  }[];
+}
 
-// export interface CreateSectionData {
-//   name: string;
-//   grade: string;
-//   capacity: number;
-//   teacherId: string;
-//   subjectId: string;
-// }
+export interface UpdateSectionData extends CreateSectionData {
+  id: number;
+}
 
-// const sectionService = {
-//   getAllSections: async (): Promise<Section[]> => {
-//     const response = await api.get<Section[]>('/sections');
-//     return response.data;
-//   },
+export const getAllSections = async (): Promise<Section[]> => {
+  const response = await api.get('/section/sections');
+  // The backend returns { message: string, sections: Section[], pagination: {...} }
+  return response.data.sections || [];
+};
 
-//   getSectionById: async (id: string): Promise<Section> => {
-//     const response = await api.get<Section>(`/sections/${id}`);
-//     return response.data;
-//   },
+export const getSectionById = async (id: number): Promise<Section> => {
+  const response = await api.get(`/section/sections/${id}`);
+  return response.data.section;
+};
 
-//   createSection: async (data: CreateSectionData): Promise<Section> => {
-//     const response = await api.post<Section>('/sections', data);
-//     return response.data;
-//   },
+export const createSection = async (data: CreateSectionData): Promise<Section> => {
+  const response = await api.post('/section/sections', data);
+  return response.data.section;
+};
 
-//   updateSection: async (id: string, data: Partial<Section>): Promise<Section> => {
-//     const response = await api.put<Section>(`/sections/${id}`, data);
-//     return response.data;
-//   },
+export const updateSection = async (id: number, data: UpdateSectionData): Promise<Section> => {
+  const response = await api.put(`/section/sections/${id}`, data);
+  return response.data.section;
+};
 
-//   deleteSection: async (id: string): Promise<void> => {
-//     await api.delete(`/sections/${id}`);
-//   },
-// };
+export const deleteSection = async (id: number): Promise<void> => {
+  await api.delete(`/section/sections/${id}`);
+};
 
-// export default sectionService; 
+export const assignSubjects = async (
+  sectionId: number,
+  subjects: Array<{
+    subjectId: number;
+    teacherId: number;
+    schedule: string;
+    room: string;
+  }>
+): Promise<Section> => {
+  const response = await api.post(`/section/sections/${sectionId}/subjects`, { subjects });
+  return response.data.section;
+};
+
+export const enrollStudents = async (sectionId: number, studentIds: number[]) => {
+  const response = await api.post<{ message: string; section: Section }>(
+    `/section/sections/${sectionId}/students`, 
+    { studentIds }
+  );
+  return response.data.section;
+}; 

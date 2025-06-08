@@ -8,10 +8,10 @@ import { fetchSections } from '../store/slices/sectionSlice';
 
 const Dashboard: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { students, loading: studentsLoading, error: studentsError } = useAppSelector((state) => state.students);
-  const { teachers, loading: teachersLoading, error: teachersError } = useAppSelector((state) => state.teachers);
-  const { subjects, loading: subjectsLoading, error: subjectsError } = useAppSelector((state) => state.subjects);
-  const { sections, loading: sectionsLoading, error: sectionsError } = useAppSelector((state) => state.sections);
+  const { students = [], loading: studentsLoading, error: studentsError } = useAppSelector((state) => state.students);
+  const { teachers = [], loading: teachersLoading, error: teachersError } = useAppSelector((state) => state.teachers);
+  const { subjects = [], loading: subjectsLoading, error: subjectsError } = useAppSelector((state) => state.subjects);
+  const { sections = [], loading: sectionsLoading, error: sectionsError } = useAppSelector((state) => state.sections);
 
   useEffect(() => {
     dispatch(fetchStudents());

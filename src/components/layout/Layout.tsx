@@ -1,31 +1,45 @@
-import React from 'react';
-import { Outlet } from 'react-router-dom';
-import { Box, AppBar, Toolbar, Typography, Drawer, List, ListItem, ListItemIcon, ListItemText, ListItemButton } from '@mui/material';
-import { Dashboard as DashboardIcon, People as PeopleIcon, School as SchoolIcon, Book as BookIcon, Class as ClassIcon } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate, Outlet } from 'react-router-dom';
+import {
+  Box,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Toolbar,
+} from '@mui/material';
+import {
+  Dashboard as DashboardIcon,
+  People as PeopleIcon,
+  School as SchoolIcon,
+  Book as BookIcon,
+  Class as ClassIcon,
+} from '@mui/icons-material';
+import Navbar from './Navbar';
 
 const drawerWidth = 240;
 
+const menuItems = [
+  { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
+  { text: 'Students', icon: <PeopleIcon />, path: '/students' },
+  { text: 'Teachers', icon: <SchoolIcon />, path: '/teachers' },
+  { text: 'Subjects', icon: <BookIcon />, path: '/subjects' },
+  { text: 'Sections', icon: <ClassIcon />, path: '/sections' },
+];
+
 const Layout: React.FC = () => {
   const navigate = useNavigate();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  const menuItems = [
-    { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-    { text: 'Students', icon: <PeopleIcon />, path: '/students' },
-    { text: 'Teachers', icon: <SchoolIcon />, path: '/teachers' },
-    { text: 'Subjects', icon: <BookIcon />, path: '/subjects' },
-    { text: 'Sections', icon: <ClassIcon />, path: '/sections' },
-  ];
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
 
   return (
     <Box sx={{ display: 'flex' }}>
-      <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-        <Toolbar>
-          <Typography variant="h6" noWrap component="div">
-            Student Management System
-          </Typography>
-        </Toolbar>
-      </AppBar>
+      <Navbar onMenuClick={handleDrawerToggle} />
       <Drawer
         variant="permanent"
         sx={{

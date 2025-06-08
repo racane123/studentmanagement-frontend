@@ -1,18 +1,38 @@
+import axios from 'axios';
 import { subjectsAPI } from './api';
 
+const API_URL = 'http://localhost:3000/api';
+
 export interface Subject {
-  id: string;
+  id: number;
   name: string;
   code: string;
   description: string;
-  credits: number;
-  department: string;
 }
+
+export interface ApiResponse<T> {
+  message: string;
+  subjects: T[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+export const getAllSubjects = async (): Promise<Subject[]> => {
+  const response = await axios.get(`${API_URL}/subjects`);
+  return response.data;
+};
 
 export const subjectService = {
   getAllSubjects: async () => {
     const response = await subjectsAPI.getAll();
-    return response.data;
+    return {
+      subjects: response.data.subjects,
+      pagination: response.data.pagination
+    };
   },
 
   getSubjectById: async (id: string) => {
@@ -31,8 +51,9 @@ export const subjectService = {
   },
 
   deleteSubject: async (id: string) => {
-    await subjectsAPI.delete(id);
-  },
+    const response = await subjectsAPI.delete(id);
+    return response.data;
+  }
 };
 
 export default subjectService; 

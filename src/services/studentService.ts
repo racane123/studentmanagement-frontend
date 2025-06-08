@@ -7,6 +7,7 @@ export interface Student {
   firstName: string;
   middleName?: string;
   lastName: string;
+  email: string;
   gender: string;
   age: number;
   section: string;
@@ -17,6 +18,27 @@ export interface Student {
   division: string;
   grade: number;
   classSection: string;
+}
+
+export interface CreateStudentData {
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+  email: string;
+  gender: string;
+  age: number;
+  section: string;
+  schoolYear: string;
+  schoolName: string;
+  subject: string;
+  gradingPeriod: string;
+  division: string;
+  grade: number;
+  classSection: string;
+}
+
+export interface UpdateStudentData extends Partial<CreateStudentData> {
+  id: string;
 }
 
 interface ApiResponse<T> {
@@ -37,7 +59,7 @@ export const studentService = {
     return response.data;
   },
 
-  async createStudent(studentData: Omit<Student, 'id'>) {
+  async createStudent(studentData: CreateStudentData) {
     const response = await axios.post<ApiResponse<Student>>(`${API_URL}/student/students`, studentData);
     return response.data;
   },

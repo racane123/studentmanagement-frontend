@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import type { RootState } from '../../store';
 import type { AppDispatch } from '../../store';
 import { CircularProgress, Box } from '@mui/material';
-import { logout } from '../../store/slices/authSlice';
+import { logout, checkAuth } from '../../store/slices/authSlice';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -16,13 +16,18 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { token, loading } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
-    // Check if token exists in localStorage
-    const storedToken = localStorage.getItem('token');
-    if (!storedToken && token) {
-      // If token exists in Redux but not in localStorage, clear the Redux state
-      dispatch(logout());
-    }
-  }, [token, dispatch]);
+    // Check token validity on mount
+    dispatch(checkAuth());
+
+    // Set up periodic token check (every minute)
+    const intervalId = setInterval(() => {
+      dispatch(checkAuth());
+    }, 60000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [dispatch]);
 
   if (loading) {
     return (

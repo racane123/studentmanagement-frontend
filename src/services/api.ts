@@ -2,58 +2,46 @@ import axios from 'axios';
 import { store } from '../store';
 import { logout } from '../store/slices/authSlice';
 
-interface Student {
+export interface Teacher {
   id: string;
-  firstName: string;
-  middleName?: string;
-  lastName: string;
-  gender: string;
-  age: number;
-  section: string;
-  schoolYear: string;
-  schoolName: string;
-  subject: string;
-  gradingPeriod: string;
-  division: string;
-  grade: number;
-  classSection: string;
-}
-
-interface Teacher {
-  id: string;
-  firstName: string;
-  middleName?: string;
-  lastName: string;
-  gender: string;
-  age: number;
+  firstname: string;
+  lastname: string;
   email: string;
-  phoneNumber: string;
-  department: string;
-  qualification: string;
-  yearsOfExperience: number;
-  schoolYear: string;
-  subjects?: Array<{
-    id: string;
-    name: string;
-    code: string;
-  }>;
+  phonenumber?: string;
+  gender?: string;
+  age?: number;
+  department?: string;
+  qualification?: string;
+  yearsofexperience?: number;
+  schoolyear?: string;
 }
 
-interface Subject {
+export interface Student {
+  id: string;
+  firstname: string;
+  lastname: string;
+  email: string;
+  gender?: string;
+  age?: number;
+  section?: string;
+  schoolyear?: string;
+  schoolname?: string;
+  subject?: string;
+  gradingperiod?: string;
+  division?: string;
+  grade?: string;
+  classsection?: string;
+}
+
+export interface Subject {
   id: string;
   name: string;
   code: string;
-  description: string;
-  department: string;
-  teachers?: Array<{
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-  }>;
+  description?: string;
+  department?: string;
 }
 
-interface Section {
+export interface Section {
   id: string;
   name: string;
   gradeLevel: string;
@@ -61,8 +49,8 @@ interface Section {
   adviserId: string;
   adviser?: {
     id: string;
-    firstName: string;
-    lastName: string;
+    firstname: string;
+    lastname: string;
     email: string;
   };
   subjects?: Array<{
@@ -74,8 +62,8 @@ interface Section {
     };
     teacher: {
       id: string;
-      firstName: string;
-      lastName: string;
+      firstname: string;
+      lastname: string;
     };
     schedule: string;
     room: string;
@@ -84,8 +72,8 @@ interface Section {
     id: string;
     student: {
       id: string;
-      firstName: string;
-      lastName: string;
+      firstname: string;
+      lastname: string;
       email: string;
     };
     enrollmentDate: string;
@@ -183,7 +171,7 @@ export const studentsAPI = {
 // Teachers API
 export const teachersAPI = {
   getAll: (params?: { page?: number; limit?: number; search?: string; department?: string; schoolYear?: string }) => 
-    api.get<PaginatedResponse<Teacher>>('/teacher/teachers', { params }),
+    api.get<{ message: string; teachers: Teacher[]; pagination: { total: number; page: number; limit: number; totalPages: number } }>('/teacher/teachers', { params }),
   getById: (id: string) => api.get<{ message: string; teacher: Teacher }>(`/teacher/teachers/${id}`),
   create: (data: Omit<Teacher, 'id'>) => api.post<{ message: string; teacher: Teacher }>('/teacher/teachers', data),
   update: (id: string, data: Partial<Teacher>) => api.put<{ message: string; teacher: Teacher }>(`/teacher/teachers/${id}`, data),
@@ -197,7 +185,7 @@ export const teachersAPI = {
 // Subjects API
 export const subjectsAPI = {
   getAll: (params?: { page?: number; limit?: number; search?: string; department?: string }) => 
-    api.get<PaginatedResponse<Subject>>('/subject/subjects', { params }),
+    api.get<{ message: string; subjects: Subject[]; pagination: { total: number; page: number; limit: number; totalPages: number } }>('/subject/subjects', { params }),
   getById: (id: string) => api.get<{ message: string; subject: Subject }>(`/subject/subjects/${id}`),
   create: (data: Omit<Subject, 'id'>) => api.post<{ message: string; subject: Subject }>('/subject/subjects', data),
   update: (id: string, data: Partial<Subject>) => api.put<{ message: string; subject: Subject }>(`/subject/subjects/${id}`, data),

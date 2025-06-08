@@ -8,6 +8,12 @@ interface SubjectState {
   selectedSubject: Subject | null;
   loading: boolean;
   error: string | null;
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  } | null;
 }
 
 const initialState: SubjectState = {
@@ -15,26 +21,40 @@ const initialState: SubjectState = {
   selectedSubject: null,
   loading: false,
   error: null,
+  pagination: null,
 };
 
-export const fetchSubjects = createAsyncThunk(
+interface SubjectResponse {
+  subjects: Subject[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+export const fetchSubjects = createAsyncThunk<SubjectResponse>(
   'subjects/fetchAll',
   async () => {
-    return await subjectService.getAllSubjects();
+    const response = await subjectService.getAllSubjects();
+    return response;
   }
 );
 
 export const createSubject = createAsyncThunk(
   'subjects/create',
   async (data: Omit<Subject, 'id'>) => {
-    return await subjectService.createSubject(data);
+    const response = await subjectService.createSubject(data);
+    return response.subject;
   }
 );
 
 export const updateSubject = createAsyncThunk(
   'subjects/update',
   async ({ id, data }: { id: string; data: Partial<Subject> }) => {
-    return await subjectService.updateSubject(id, data);
+    const response = await subjectService.updateSubject(id, data);
+    return response.subject;
   }
 );
 
@@ -66,7 +86,8 @@ const subjectSlice = createSlice({
       })
       .addCase(fetchSubjects.fulfilled, (state, action) => {
         state.loading = false;
-        state.subjects = action.payload;
+        state.subjects = action.payload.subjects;
+        state.pagination = action.payload.pagination;
       })
       .addCase(fetchSubjects.rejected, (state, action) => {
         state.loading = false;
@@ -74,13 +95,17 @@ const subjectSlice = createSlice({
       })
       // Create subject
       .addCase(createSubject.fulfilled, (state, action) => {
-        state.subjects.push(action.payload);
+        if (action.payload) {
+          state.subjects.push(action.payload);
+        }
       })
       // Update subject
       .addCase(updateSubject.fulfilled, (state, action) => {
-        const index = state.subjects.findIndex(s => s.id === action.payload.id);
-        if (index !== -1) {
-          state.subjects[index] = action.payload;
+        if (action.payload) {
+          const index = state.subjects.findIndex(s => s.id === action.payload.id);
+          if (index !== -1) {
+            state.subjects[index] = action.payload;
+          }
         }
       })
       // Delete subject
